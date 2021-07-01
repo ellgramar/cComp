@@ -5,7 +5,6 @@
 #include <fcntl.h> // for open
 #include <unistd.h> // for close
 #define int long long // work with 64bit target
-
 int token;            // current token
 char *src, *old_src;  // pointer to source code string;
 int poolsize;         // default size of text/data/stack
@@ -15,7 +14,6 @@ int *text,            // text segment
     *stack;           // stack
 char *data;           // data segment
 int *pc, *bp, *sp, ax, cycle; // virtual machine registers
-
 // instructions
 enum { LEA ,IMM ,JMP ,CALL,JZ  ,JNZ ,ENT ,ADJ ,LEV ,LI  ,LC  ,SI  ,SC  ,PUSH,
        OR  ,XOR ,AND ,EQ  ,NE  ,LT  ,GT  ,LE  ,GE  ,SHL ,SHR ,ADD ,SUB ,MUL ,DIV ,MOD ,
@@ -25,11 +23,9 @@ void next() {
     token = *src++;
     return;
 }
-
 void expression(int level) {
     // do nothing
 }
-
 void program() {
     next(); // get next token
     while (token > 0) {
@@ -37,8 +33,6 @@ void program() {
         next();
     }
 }
-
-
 int eval() {
     int op, *tmp;
     while (1) {
@@ -165,26 +159,18 @@ int eval() {
     }
     return 0;
 }
-
 #undef int // Mac/clang needs this
-
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
     #define int long long // work with 64bit target
-
     int i, fd;
-
     argc--;
     argv++;
-
     poolsize = 256 * 1024; // arbitrary size
     line = 1;
-
     if ((fd = open(*argv, 0)) < 0) {
         printf("could not open(%s)\n", *argv);
         return -1;
     }
-
     if (!(src = old_src = malloc(poolsize))) {
         printf("could not malloc(%d) for source area\n", poolsize);
         return -1;
@@ -196,7 +182,6 @@ int main(int argc, char **argv)
     }
     src[i] = 0; // add EOF character
     close(fd);
-
     // allocate memory for virtual machine
     if (!(text = old_text = malloc(poolsize))) {
         printf("could not malloc(%d) for text area\n", poolsize);
@@ -210,27 +195,11 @@ int main(int argc, char **argv)
         printf("could not malloc(%d) for stack area\n", poolsize);
         return -1;
     }
-
     memset(text, 0, poolsize);
     memset(data, 0, poolsize);
     memset(stack, 0, poolsize);
     bp = sp = (int *)((int)stack + poolsize);
-    ax = 0;
-
-
-    i = 0;
-    text[i++] = IMM;
-    text[i++] = 10;
-    text[i++] = PUSH;
-    text[i++] = IMM;
-    text[i++] = 20;
-    text[i++] = ADD;
-    text[i++] = PUSH;
-    text[i++] = EXIT;
-
-    pc = text;
 
     program();
-
     return eval();
 }
